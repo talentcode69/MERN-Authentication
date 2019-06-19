@@ -1,19 +1,18 @@
 import React from 'react';
-
-import { userService } from '../_services';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { userActions } from '../_actions';
 
 class LoginPage extends React.Component {
     constructor(props) {
         super(props);
 
-        userService.logout();
+        this.props.dispatch(userActions.logout());
 
         this.state = {
             username: '',
             password: '',
             submitted: false,
-            loading: false,
-            error: ''
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -29,26 +28,17 @@ class LoginPage extends React.Component {
         e.preventDefault();
 
         this.setState({ submitted: true });
-        const { username, password, returnUrl } = this.state;
-
-        // stop here if form is invalid
-        if (!(username && password)) {
-            return;
+        const { username, password } = this.state;
+        const { dispatch } = this.props;
+        
+        if (username && password) {
+            dispatch(userActions.login(username, password));
         }
-
-        this.setState({ loading: true });
-        userService.login(username, password)
-            .then(
-                user => {
-                    const { from } = this.props.location.state || { from: { pathname: "/" } };
-                    this.props.history.push(from);
-                },
-                error => this.setState({ error, loading: false })
-            );
     }
 
     render() {
-        const { username, password, submitted, loading, error } = this.state;
+        const { loggingIn } = this.props;
+        const { username, password, submitted } = this.state;
         return (
             <div className="col-md-6 col-md-offset-3">
                 <div className="alert alert-info">
@@ -72,18 +62,23 @@ class LoginPage extends React.Component {
                         }
                     </div>
                     <div className="form-group">
-                        <button className="btn btn-primary" disabled={loading}>Login</button>
-                        {loading &&
-                            <p>Loading...</p>
+                        <button className="btn btn-primary" disabled={loggingIn}>Login</button>
+                        {loggingIn &&
+                            <p>loggingIn...</p>
                         }
+                        <Link to="/register" className="btn btn-link">Register</Link>
                     </div>
-                    {error &&
-                        <div className={'alert alert-danger'}>{error}</div>
-                    }
                 </form>
             </div>
         );
     }
 }
 
-export { LoginPage }; 
+function mapStateToProps(state) {
+    const { loggingIn } = state.authentication;
+    return {
+        loggingIn
+    };
+}
+const connectedLoginPage = connect(mapStateToProps)(LoginPage);
+export { connectedLoginPage as LoginPage }; 
