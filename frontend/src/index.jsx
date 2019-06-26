@@ -5,10 +5,8 @@ import { Provider } from 'react-redux';
 import  { store } from './_helpers';
 import { App } from './App';
 //import * as serviceWorker from './serviceWorker';
-
-
-import { configureFakeBackend } from './_helpers';
-configureFakeBackend();
+// import { configureFakeBackend } from './_helpers';
+// configureFakeBackend();
 
 ReactDOM.render(
     <Provider store={store}>

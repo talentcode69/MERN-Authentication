@@ -1,4 +1,5 @@
 import { authHeader } from '../_helpers';
+import axios from 'axios';
 
 export const userService = {
     login,
@@ -9,15 +10,15 @@ export const userService = {
     update,
     delete: _delete
 };
-
+const serverurl = `http://127.0.0.1:4000`;
+console.log(`${serverurl}/users/authenticate`);
 function login(username, password) {
     const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        username: username,
+        password: password
     };
-
-    return fetch(`/users/authenticate`, requestOptions)
+    console.log(`${serverurl}/users/authenticate`);
+    return axios.post(`${serverurl}/users/authenticate`, requestOptions)
         .then(handleResponse)
         .then(user => {
             // login successful if there's a user in the response
@@ -28,7 +29,7 @@ function login(username, password) {
             //}
 
             return user;
-        });
+        }).catch(handleError);
 }
 
 function logout() {
@@ -38,56 +39,62 @@ function logout() {
 
 function getAll() {
     const requestOptions = {
-        method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`/users`, requestOptions).then(handleResponse);
+    return axios.get(`${serverurl}/users`, requestOptions).then(handleResponse);
 }
 function getById(id) {
     const requestOptions = {
-        method: 'GET',
         headers: authHeader()
     };
-    return fetch(`/users/${id}`,requestOptions).then(handleResponse);
+    return axios.get(`${serverurl}/users/${id}`,requestOptions).then(handleResponse);
 }
 function register(user) {
-    const requestOptions = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(user)
-    };
-    return fetch('/users/register',requestOptions).then(handleResponse);
+    return axios.post(`${serverurl}/users/register`,user).then(handleResponse);
 }
 function update(user) {
     const requestOptions = {
-        method: 'PUT',
-        headers: {...authHeader(),'Content-Type': 'application/json'},
-        body: JSON.stringify(user)
+        headers: authHeader()
     };
-    return fetch(`/users/${user.id}`,requestOptions).then(handleResponse);
+    
+    return axios.put(`${serverurl}/users/${user.id}`,user,requestOptions).then(handleResponse);
 }
 function _delete(id) {
     const requestOptions = {
-        method: 'DELETE',
         headers: authHeader()
     };
-    return fetch(`/users/${id}`,requestOptions).then(handleResponse);
+    return axios.delete(`${serverurl}/users/${id}`,requestOptions).then(handleResponse);
 }
 function handleResponse(response) {
-    return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                logout();
-                window.location.reload(true);
-            }
+    // return response.text().then(text => {
+    //     const data = text && JSON.parse(text);
+    //     if (!response.ok) {
+    //         if (response.status === 401) {
+    //             // auto logout if 401 response returned from api
+    //             logout();
+    //             window.location.reload(true);
+    //         }
 
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
+    //         const error = (data && data.message) || response.statusText;
+    //         return Promise.reject(error);
+    //     }
 
-        return data;
-    });
+    //     return data;
+    // });
+    console.log(response);
+    if (response.statusText === "OK")
+        return response.data;
+    if (response.status === 401) {
+        // auto logout if 401 response returned from api
+        logout();
+        window.location.reload(true);
+    }
+
+    const error = (response && response.data.message) || response.statusText;
+    return Promise.reject(error);
+}
+function handleError(err) {
+    //console.log(err); 
+    return Promise.reject(err.response.data.message);
 }

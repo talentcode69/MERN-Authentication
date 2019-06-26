@@ -1,4 +1,4 @@
 {
-    "connectionString": "mongodb://localhost/node-mongo-registration-login-api",
+    "connectionString": "mongodb://127.0.0.1:27017/react-auth",
     "secret": "fdjklhj1k5hjk42h5jkhgfu98dbg0wue5j3%#$%TGEGVerygey%$^HYGRHU%$&Y67%ERrg"
 }

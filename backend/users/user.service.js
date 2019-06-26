@@ -13,6 +13,7 @@ module.exports = {
     delete: _delete
 };
 async function authenticate({username, password}) {
+    console.log(username + password);
     const user = await User.findOne({username});
     if (user && bcrypt.compareSync(password, user.hash)) {
         const {hash, ...userWithoutHash} = user.toObject();
@@ -37,6 +38,7 @@ async function create(userParam) {
     await user.save();
 }
 async function update(id, userParam) {
+    console.log(userParam);
     const user = await User.findById(id);
     if (!user) throw 'User not found';
     if (user.username !== userParam.username && await User.findOne({username: userParam.username})) {

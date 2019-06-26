@@ -7,7 +7,10 @@ export const userActions = {
     login,
     logout,
     register,
+    update,
     getAll,
+    showModal,
+    closeModal,
     delete: _delete
 };
 
@@ -54,6 +57,32 @@ function register(user) {
     function request(user) { return { type: userConstants.REGISTER_REQUEST, user } }
     function success(user) { return { type: userConstants.REGISTER_SUCCESS, user } }
     function failure(error) { return { type: userConstants.REGISTER_FAILURE, error } }
+}
+function showModal(user) {
+    return { type: userConstants.UPDATE_MODAL, user };
+}
+function closeModal() {
+    return { type: userConstants.UPDATE_MODAL_CLOSE };
+}
+function update(user) {
+    return dispatch => {
+        dispatch(request(user));
+        userService.update(user)
+            .then(
+                user => {
+                    dispatch(success());
+                    dispatch(userActions.getAll());
+                    dispatch(alertActions.success('Update Successful'));
+                },
+                error => {
+                    dispatch(failure(error));
+                    dispatch(alertActions.error(error));
+                }
+            );
+    };
+    function request(user) { return { type: userConstants.UPDATE_REQUEST, user } }
+    function success(user) { return { type: userConstants.UPDATE_SUCCESS, user } }
+    function failure(error) { return { type: userConstants.UPDATE_FAILURE, error } }
 }
 function getAll() {
     return dispatch => {
